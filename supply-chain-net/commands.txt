@@ -1,0 +1,8 @@
+../bin/cryptogen generate --config=./crypto-config.yaml
+export FABRIC_CFG_PATH=$PWD
+../bin/configtxgen -profile SupplyChainOrgsOrdererGenesis -outputBlock ./channel-artifacts/genesis.block
+export CHANNEL_NAME=supplyChainChannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+../bin/configtxgen -profile ../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+export CHANNEL_NAME=supplyChainChannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+../bin/configtxgen -profile SupplyChainOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProducerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ProducerMSP
+.. same for all orgs
