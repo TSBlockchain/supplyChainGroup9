@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/protos/peer"
+	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
 type SmartContract struct {
@@ -82,8 +82,8 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) recordTuna(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
 	var tuna = Tuna{Vessel: args[1], BarCode: args[2], Location: args[3], Timestamp: args[4], Holder: args[5]}

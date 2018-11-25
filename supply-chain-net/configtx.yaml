@@ -12,7 +12,7 @@ Orderer: &OrdererDefaults
     OrdererType: solo
 
     Addresses:
-        - orderer.supply-chain-blockchain.com:7050
+        - orderer.scb.com:7050
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -46,54 +46,54 @@ Organizations:
 
     # SampleOrg defines an MSP using the sampleconfig.  It should never be used
     # in production but may be used as a template for other definitions
-    - &OrdererOrg
+    - &ordererOrg
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: OrdererOrg
+        Name: ordererOrg
 
         # ID to load the MSP definition as
-        ID: OrdererMSP
+        ID: ordererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/supply-chain-blockchain.com/msp
+        MSPDir: crypto-config/ordererOrganizations/scb.com/msp
 
-    - &Producer
-        Name: ProducerMSP
-        ID: ProducerMSP
+    - &producer
+        Name: producerMSP
+        ID: producerMSP
 
-        MSPDir: crypto-config/peerOrganizations/producer.supply-chain-blockchain.com/msp
+        MSPDir: crypto-config/peerOrganizations/producer.scb.com/msp
         AnchorPeers:
-            - Host: peer0.producer.supply-chain-blockchain.com
+            - Host: peer0.producer.scb.com
               Port: 7051
 
-    - &Supplier
-        Name: SupplierMSP
-        ID: SupplierMSP
+    - &supplier
+        Name: supplierMSP
+        ID: supplierMSP
 
-        MSPDir: crypto-config/peerOrganizations/supplier.supply-chain-blockchain.com/msp
+        MSPDir: crypto-config/peerOrganizations/supplier.scb.com/msp
 
         AnchorPeers:
-            - Host: peer0.supplier.supply-chain-blockchain.com
+            - Host: peer0.supplier.scb.com
               Port: 7051
 
-    - &Regulator
-        Name: RegulatorMSP
-        ID: RegulatorMSP
+    - &regulator
+        Name: regulatorMSP
+        ID: regulatorMSP
 
-        MSPDir: crypto-config/peerOrganizations/regulator.supply-chain-blockchain.com/msp
+        MSPDir: crypto-config/peerOrganizations/regulator.scb.com/msp
 
         AnchorPeers:
-            - Host: peer0.regulator.supply-chain-blockchain.com
+            - Host: peer0.regulator.scb.com
               Port: 7051
 
-    - &Consumer
-        Name: ConsumerMSP
-        ID: ConsumerMSP
+    - &consumer
+        Name: consumerMSP
+        ID: consumerMSP
 
-        MSPDir: crypto-config/peerOrganizations/consumer.supply-chain-blockchain.com/msp
+        MSPDir: crypto-config/peerOrganizations/consumer.scb.com/msp
 
         AnchorPeers:
-            - Host: peer0.consumer.supply-chain-blockchain.com
+            - Host: peer0.consumer.scb.com
               Port: 7051
 
 Application: &ApplicationDefaults
@@ -108,20 +108,20 @@ Profiles:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
-                - *OrdererOrg
+                - *ordererOrg
         Consortiums:
             SampleConsortium:
                 Organizations:
-                    - *Producer
-                    - *Supplier
-                    - *Consumer
-                    - *Regulator
+                    - *producer
+                    - *supplier
+                    - *consumer
+                    - *regulator
     SupplyChainOrgsChannel:
         Consortium: SampleConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *Producer
-                - *Supplier
-                - *Consumer
-                - *Regulator
+                - *producer
+                - *supplier
+                - *consumer
+                - *regulator

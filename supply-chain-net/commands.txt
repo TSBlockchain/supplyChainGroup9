@@ -1,10 +1,33 @@
-../bin/configtxgen -profile SupplyChainOrgsOrdererGenesis -outputBlock ./channel-artifacts/genesis.block
-export CHANNEL_NAME=supplychainchannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+1. Generate crypto files:
+./bin/cryptogen generate --config=./crypto-config.yaml
 
+2. Generate genesis block
+export FABRIC_CFG_PATH=$PWD
+./bin/configtxgen -profile SupplyChainOrgsOrdererGenesis -outputBlock ./channel-artifacts/genesis.block
+
+3. Generate channel.tx
+export CHANNEL_NAME=scbchannel  && ./bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+
+4. Run network
 docker-compose -f docker-compose.yml up
 
-docker exec -e "CORE_PEER_LOCALMSPID=ProducerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/producer.supply-chain-blockchain.com/users/Admin@producer.supply-chain-blockchain.com/msp" -e "CORE_PEER_ADDRESS=peer0.producer.supply-chain-blockchain.com:7051" cli peer channel create -o orderer.supply-chain-blockchain.com:7050 -c supplychainchannel -f /etc/hyperledger/configtx/channel.tx
+5. Create network
+docker exec -e "CORE_PEER_LOCALMSPID=producerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/producer.scb.com/users/Admin@producer.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.producer.scb.com:7051" cli peer channel create -o orderer.scb.com:7050 -c scbchannel -f /etc/hyperledger/configtx/channel.tx
 
-docker exec -e "CORE_PEER_LOCALMSPID=supplierMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/supplier.supply-chain-blockchain.com/users/Admin@supplier.supply-chain-blockchain.com/msp" -e "CORE_PEER_ADDRESS=peer0.supplier.supply-chain-blockchain.com:7051" cli peer channel join -b supplychainchannel.block
-docker exec -e "CORE_PEER_LOCALMSPID=consumerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/consumer.supply-chain-blockchain.com/users/Admin@consumer.supply-chain-blockchain.com/msp" -e "CORE_PEER_ADDRESS=peer0.consumer.supply-chain-blockchain.com:7051" cli peer channel join -b supplychainchannel.block
-docker exec -e "CORE_PEER_LOCALMSPID=regulatorMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/regulator.supply-chain-blockchain.com/users/Admin@regulator.supply-chain-blockchain.com/msp" -e "CORE_PEER_ADDRESS=peer0.regulator.supply-chain-blockchain.com:7051" cli peer channel join -b supplychainchannel.block
+6. Join network
+docker exec -e "CORE_PEER_LOCALMSPID=producerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/producer.scb.com/users/Admin@producer.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.producer.scb.com:7051" cli peer channel join -b scbchannel.block
+
+docker exec -e "CORE_PEER_LOCALMSPID=supplierMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/supplier.scb.com/users/Admin@supplier.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.supplier.scb.com:7051" cli peer channel join -b scbchannel.block
+
+docker exec -e "CORE_PEER_LOCALMSPID=consumerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/consumer.scb.com/users/Admin@consumer.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.consumer.scb.com:7051" cli peer channel join -b scbchannel.block
+
+docker exec -e "CORE_PEER_LOCALMSPID=regulatorMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/regulator.scb.com/users/Admin@regulator.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.regulator.scb.com:7051" cli peer channel join -b scbchannel.block
+
+7. Install chaincode:
+docker exec -e "CORE_PEER_LOCALMSPID=regulatorMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/regulator.scb.com/users/Admin@regulator.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.regulator.scb.com:7051" cli peer chaincode install -n tuna -v 1.0 -p github.com/chaincode -l golang
+
+8. Instantiate chaincode:
+docker exec -e "CORE_PEER_LOCALMSPID=regulatorMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/regulator.scb.com/users/Admin@regulator.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.regulator.scb.com:7051" cli peer chaincode instantiate -o orderer.scb.com.com:7050 -C scbchannel -n tuna -l golang -v 1.0 -c '{"Args": [""] }'  -P "AND ('regulatorMSP.member')"
+
+9. Query chaincode:
+docker exec -e "CORE_PEER_LOCALMSPID=regulatorMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/regulator.scb.com/users/Admin@regulator.scb.com/msp" -e "CORE_PEER_ADDRESS=peer0.regulator.scb.com:7051" cli peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["query","a"]}'
