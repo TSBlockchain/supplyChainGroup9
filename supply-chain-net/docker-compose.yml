@@ -22,6 +22,8 @@ services:
     volumes:
         - ./config/:/etc/hyperledger/configtx
         - ./crypto-config/ordererOrganizations/supply-chain-blockchain.com/orderers/orderer.supply-chain-blockchain.com/:/etc/hyperledger/msp/orderer
+        - ./channel-artifacts/genesis.block:/etc/hyperledger/configtx/genesis.block
+        - ./channel-artifacts/channel.tx:/etc/hyperledger/configtx/channel.tx
     networks:
       - scb
 
@@ -31,7 +33,7 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.producer.supply-chain-blockchain.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.producer.supply-chain-blockchain.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/1dd7eabd5567b5cc56c6a4b5703be50de7bf54ad53a7629faffa2f2693d65286_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/b5880f0cd19b37b7b15ab41cedbf17ae922ef368dfbde85c8015df3ecaabb5d1_sk
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
@@ -47,7 +49,7 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.supplier.supply-chain-blockchain.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.supplier.supply-chain-blockchain.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/9dff136975e00434e5a8fc5aaced44d393da9209866ceeb111fbd977068f6773_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/38be0871b19bdea1fc414dba019d91cee570a386b4c62def6a7fc7b2c45d9611_sk
     ports:
       - "7055:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
@@ -63,7 +65,7 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.regulator.supply-chain-blockchain.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.regulator.supply-chain-blockchain.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/21608b1a3c4b931956403f8e9ea81cd79e504cf7e0ada28aba76211ec7ed70b7_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/3b18cd64b7ec6ad61a9a7f4aedd85fb5e2ce0ac2a6fbcddf4f1f3e49022c2fa6_sk
     ports:
       - "7056:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
@@ -79,7 +81,7 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.consumer.supply-chain-blockchain.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.consumer.supply-chain-blockchain.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/69bd37d6a340c2fa06fedb6e891171f89c3e107d80474d8a0904119b51da9938_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/c12e2e702ccef00475175b8512f87208583921120346113851bf605d607e81a1_sk
     ports:
       - "7057:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
@@ -174,6 +176,7 @@ services:
         - ./crypto-config/peerOrganizations/producer.supply-chain-blockchain.com/peers/peer0.producer.supply-chain-blockchain.com/msp:/etc/hyperledger/msp/peer
         - ./crypto-config/peerOrganizations/producer.supply-chain-blockchain.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
+        - ./channel-artifacts:/etc/hyperledger/configtx
     depends_on:
       - orderer.supply-chain-blockchain.com
       - couchdb-producer
@@ -206,6 +209,7 @@ services:
         - ./crypto-config/peerOrganizations/regulator.supply-chain-blockchain.com/peers/peer0.regulator.supply-chain-blockchain.com/msp:/etc/hyperledger/msp/peer
         - ./crypto-config/peerOrganizations/regulator.supply-chain-blockchain.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
+        - ./channel-artifacts:/etc/hyperledger/configtx
     depends_on:
       - orderer.supply-chain-blockchain.com
       - couchdb-regulator
@@ -238,6 +242,7 @@ services:
         - ./crypto-config/peerOrganizations/supplier.supply-chain-blockchain.com/peers/peer0.supplier.supply-chain-blockchain.com/msp:/etc/hyperledger/msp/peer
         - ./crypto-config/peerOrganizations/supplier.supply-chain-blockchain.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
+        - ./channel-artifacts:/etc/hyperledger/configtx
     depends_on:
       - orderer.supply-chain-blockchain.com
       - couchdb-supplier
@@ -270,6 +275,7 @@ services:
         - ./crypto-config/peerOrganizations/consumer.supply-chain-blockchain.com/peers/peer0.consumer.supply-chain-blockchain.com/msp:/etc/hyperledger/msp/peer
         - ./crypto-config/peerOrganizations/consumer.supply-chain-blockchain.com/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
+        - ./channel-artifacts:/etc/hyperledger/configtx
     depends_on:
       - orderer.supply-chain-blockchain.com
       - couchdb-consumer
@@ -285,9 +291,9 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=info
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer0.consumer.supply-chain-blockchain.com:7051
+      - CORE_PEER_ADDRESS=peer0.producer.supply-chain-blockchain.com:7051
       - CORE_PEER_LOCALMSPID=ConsumerMSP
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/peer0.consumer.supply-chain-blockchain.com/users/Admin@peer0.consumer.supply-chain-blockchain.com/msp
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/producer.supply-chain-blockchain.com/users/Admin@producer.supply-chain-blockchain.com/msp
       - CORE_CHAINCODE_KEEPALIVE=10
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash

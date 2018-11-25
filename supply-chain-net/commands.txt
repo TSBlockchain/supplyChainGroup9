@@ -1,8 +1,8 @@
 ../bin/cryptogen generate --config=./crypto-config.yaml
 export FABRIC_CFG_PATH=$PWD
 ../bin/configtxgen -profile SupplyChainOrgsOrdererGenesis -outputBlock ./channel-artifacts/genesis.block
-export CHANNEL_NAME=supplyChainChannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
-../bin/configtxgen -profile ../bin/configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
-export CHANNEL_NAME=supplyChainChannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
-../bin/configtxgen -profile SupplyChainOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/ProducerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ProducerMSP
-.. same for all orgs
+export CHANNEL_NAME=supplychainchannel  && ../bin/configtxgen -profile SupplyChainOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+
+docker-compose -f docker-compose.yml up
+
+docker exec -e "CORE_PEER_LOCALMSPID=ProducerMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/producer.supply-chain-blockchain.com/users/Admin@producer.supply-chain-blockchain.com/msp" -e "CORE_PEER_ADDRESS=peer0.producer.supply-chain-blockchain.com:7051" cli peer channel create -o orderer.supply-chain-blockchain.com:7050 -c supplychainchannel -f /etc/hyperledger/configtx/channel.tx
